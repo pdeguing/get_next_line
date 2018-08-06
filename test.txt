@@ -1,0 +1,1 @@
+I built this blog to share my advancement as I dive deeper into computer science. I plan to upload a debrief for each project I complete within 42's curriculum.
