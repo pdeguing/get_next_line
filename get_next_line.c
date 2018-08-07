@@ -6,7 +6,7 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/03 21:49:22 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/08/07 08:37:42 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/07 08:51:45 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,11 @@ int		get_next_line(const int fd, char **line)
 	{
 		READ;
 		if (array == NULL)
-			create_array(buf, array);
+			array = ft_strsplit(buf, '\n');
 		else if (ft_strlen(array) == 1)
 		{
 			tmp = array[0];
-			create_array(buf, array);
+			array = ft_strsplit(buf, '\n');
 			array[0] = ft_strjoin(tmp, array[0]);
 		}
 		get_next_line(fd, line);
