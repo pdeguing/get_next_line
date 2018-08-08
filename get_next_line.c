@@ -6,7 +6,7 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/03 21:49:22 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/08/07 14:43:53 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/07 18:07:21 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,64 +23,60 @@ buf[ret] = '\0';
 str = ft_strjoin(str, buf);
 	*/
 
-int		get_next_line(const int fd, char **line)
+char	*get_all_file(const int fd)
 {
-	static char	**array;
-	char		*buf;
-	char		*tmp;
-	int			ret;
-	
-	ft_putstr("get_next_line() start\n");
-	if (!(buf = (char *)malloc(sizeof(char) * (BUF_SIZE + 1))))
-		return (-1);
-	ret = 0;
-	if (array == NULL || array[1] == NULL)
+	char	*buf;
+	char	*tmp1;
+	char	*tmp2;
+	int		ret;
+
+	if(!(buf = (char *)malloc(sizeof(char) * (BUF_SIZE + 1))))
+		return (NULL);
+	if (read(fd, buf, 0) == -1)
+		return (NULL);
+	tmp1 = ft_strnew(1);
+	while ((ret = read(fd, buf, BUF_SIZE)) > 0)
 	{
-		if (!(ret = read(fd, buf, BUF_SIZE)))
-			return (-1);
-//		ft_putnbr(ret);
-//		ft_putchar('\n');
 		buf[ret] = '\0';
-//		ft_putstr(buf);
-		if (array == NULL)
-			array = ft_strsplit(buf, '\n');
-		else if (array[1] == NULL)
-		{
-			ft_putstr("else if\n");
-			tmp = array[0];
-//			ft_putstr(array[0]);
-//			ft_putchar('\n');
-			array = ft_strsplit(buf, '\n');
-//			ft_putstr(array[0]);
-//			ft_putchar('\n');
-			if (array[0])
-			{
-//				ft_putstr("calling ft_strjoin()\n");
-				array[0] = ft_strjoin(tmp, array[0]);
-//				ft_putstr(array[0]);
-//				ft_putchar('\n');
-				ft_strdel(&tmp);
-			}
-		}
-//		ft_putstr("recursion call\n");
-		if (array)
-		{
-			ft_putstr(array[0]);
-			ft_putchar('\n');
-		}
-		get_next_line(fd, line);
+		tmp2 = tmp1;;
+		tmp1 = ft_strjoin(tmp2, buf);
+		ft_strdel(&tmp2);
 	}
-//	ft_putstr(array[0]);
-//	ft_putchar('\n');
-//	if (array[1])
-//		ft_putstr("oops\n");
-	ft_putstr("duplicating into *line\n");
-	*line = ft_strdup(array[0]);
-	ft_putstr("duplicated into *line\n");
-	ft_strdel(array);
-	array++;
-	ft_putstr("get_next_line() end\n");
-	return (1);
+	return (tmp1);
 }
 
-// got to make it work when there is no \n within BUF_SIZE
+int		get_next_line(const int fd, char **line)
+{
+	static int		i = 0;
+	static char		**array;
+	char			*tmp;
+//	char			*buf;
+//	int				ret;
+
+	if (!array)
+	{
+//		if(!(buf = (char *)malloc(sizeof(char) * (BUF_SIZE + 1))))
+//			return (-1);
+//		if (read(fd, buf, 0) == -1)
+//			return (-1);
+//		tmp = ft_strnew(1);
+//		while ((ret = read(fd, buf, BUF_SIZE)) > 0)
+//		{
+//			buf[ret] = '\0';
+//			tmp = ft_strjoin(tmp, buf);
+//		}
+		if (!(tmp = get_all_file(fd)))
+			return (-1);
+		array = ft_strsplit(tmp, '\n');
+		ft_strdel(&tmp);
+	}
+	if (array[i])
+	{
+		*line = array[i];
+		if (i > 0)
+			ft_strdel(array);
+		i++;
+		return (1);
+	}
+	return (0);
+}
