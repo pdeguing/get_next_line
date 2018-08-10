@@ -6,7 +6,7 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/10 16:05:50 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/07/20 09:30:35 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/10 08:41:11 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,8 @@
 
 void	ft_strdel(char **as)
 {
-	ft_memdel((void **)as);
+	if (!as || !*as)
+		return ;
+	free(*as);
+	*as = 0;
 }
