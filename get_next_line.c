@@ -6,12 +6,21 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/03 21:49:22 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/08/10 09:56:13 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/16 13:24:51 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+static t_list	*create_new_node(int fd, t_list **line_list)
+{
+	t_list	*new;
+
+	new = ft_lstnew("\0", fd);
+	ft_lstadd(line_list, new);
+	return (new);
+
+}
 static t_list	*get_current_node(const int fd, t_list **line_list)
 {
 	t_list		*tmp;
@@ -23,16 +32,7 @@ static t_list	*get_current_node(const int fd, t_list **line_list)
 			return (tmp);
 		tmp = tmp->next;
 	}
-	return (NULL);
-}
-
-static t_list	*create_new_node(int fd, t_list **line_list)
-{
-	t_list	*new;
-
-	new = ft_lstnew("\0", fd);
-	ft_lstadd(line_list, new);
-	return (new);
+	return (create_new_node(fd, line_list));
 }
 
 char			*read_until_newline(int fd)
@@ -79,9 +79,9 @@ int		get_next_line(const int fd, char **line)
 
 	if (fd < 0 || line == NULL)
 		return (-1);
+	if (!line_list)
+		line_list = ft_lstnew("\0", fd);
 	current = get_current_node(fd, &line_list);
-	if (!current)
-		current = create_new_node(fd, &line_list);
 	if (!ft_strchr(current->content, '\n'))
 		buffer = read_until_newline(fd);
 	else
@@ -92,15 +92,13 @@ int		get_next_line(const int fd, char **line)
 		return (0);
 	tmp = current->content;
 	current->content = ft_strjoin(tmp, buffer);
-	if (tmp)
-		ft_strdel(&tmp);
-	if (buffer)
-		ft_strdel(&buffer);
+	ft_strdel(&tmp);
+	ft_strdel(&buffer);
 	index_newline = get_index_newline(current->content);
-	*line = ft_strsub(current->content, 0, index_newline);
 	tmp = current->content;
-	current->content = ft_strsub(tmp, index_newline + 1, ft_strlen(tmp) - index_newline - 1);
-	if (tmp)
-		ft_strdel(&tmp);
+	*line = ft_strsub(tmp, 0, index_newline);
+	if (ft_strlen(tmp) != ft_strlen(*line))
+		current->content = ft_strsub(tmp, index_newline + 1, ft_strlen(tmp) - index_newline - 1);
+	ft_strdel(&tmp);
 	return (1);
 }
