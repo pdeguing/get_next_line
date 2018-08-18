@@ -6,7 +6,7 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/03 21:50:03 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/08/16 13:24:49 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/18 07:05:41 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define GET_NEXT_LINE_H
 # include "libft/libft.h"
 # include <fcntl.h>
-# define BUFF_SIZE 1 
+# define BUFF_SIZE 1000
 
 int		get_next_line(const int fd, char **line);
 

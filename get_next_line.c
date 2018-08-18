@@ -6,24 +6,24 @@
 /*   By: pdeguing <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/03 21:49:22 by pdeguing          #+#    #+#             */
-/*   Updated: 2018/08/16 13:24:51 by pdeguing         ###   ########.fr       */
+/*   Updated: 2018/08/18 07:15:29 by pdeguing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static t_list	*create_new_node(int fd, t_list **line_list)
+static t_list		*create_new_node(int fd, t_list **line_list)
 {
-	t_list	*new;
+	t_list			*new;
 
 	new = ft_lstnew("\0", fd);
 	ft_lstadd(line_list, new);
 	return (new);
-
 }
-static t_list	*get_current_node(const int fd, t_list **line_list)
+
+static t_list		*get_current_node(const int fd, t_list **line_list)
 {
-	t_list		*tmp;
+	t_list			*tmp;
 
 	tmp = *line_list;
 	while (tmp)
@@ -35,16 +35,18 @@ static t_list	*get_current_node(const int fd, t_list **line_list)
 	return (create_new_node(fd, line_list));
 }
 
-char			*read_until_newline(int fd)
+char				*readnl(char *content, int fd)
 {
-	char	buf[BUFF_SIZE + 1];
-	char	*tmp;
-	char	*stack;
-	int		ret;
+	char			buf[BUFF_SIZE + 1];
+	char			*tmp;
+	char			*stack;
+	int				ret;
 
-	if (read(fd, buf, 0) < 0)
-		return (NULL);
 	stack = ft_strnew(1);
+	if (ft_strchr(content, '\n'))
+		return (stack);
+	if (fd < 0 || read(fd, buf, 0) < 0)
+		return (NULL);
 	if (!stack)
 		return (NULL);
 	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
@@ -54,14 +56,14 @@ char			*read_until_newline(int fd)
 		ft_strdel(&stack);
 		stack = tmp;
 		if (ft_strchr(buf, '\n'))
-			break;
+			break ;
 	}
 	return (stack);
 }
 
-int				get_index_newline(char *str)
+int					get_index_newline(char *str)
 {
-	int		i;
+	int				i;
 
 	i = 0;
 	while (str[i] && str[i] != '\n')
@@ -69,36 +71,29 @@ int				get_index_newline(char *str)
 	return (i);
 }
 
-int		get_next_line(const int fd, char **line)
+int					get_next_line(const int fd, char **line)
 {
 	static t_list	*line_list;
-	t_list			*current;
+	t_list			*curr;
 	char			*buffer;
 	char			*tmp;
-	int				index_newline;
+	int				i;
 
-	if (fd < 0 || line == NULL)
+	!line_list ? (line_list = ft_lstnew("\0", fd)) : NULL;
+	curr = get_current_node(fd, &line_list);
+	if (!(buffer = readnl(curr->content, fd)) || line == NULL)
 		return (-1);
-	if (!line_list)
-		line_list = ft_lstnew("\0", fd);
-	current = get_current_node(fd, &line_list);
-	if (!ft_strchr(current->content, '\n'))
-		buffer = read_until_newline(fd);
-	else
-		buffer = ft_strnew(1);
-	if (!buffer)
-		return (-1);
-	if (!ft_strlen(buffer) && !ft_strlen(current->content))
+	if (!ft_strlen(buffer) && !ft_strlen(curr->content))
 		return (0);
-	tmp = current->content;
-	current->content = ft_strjoin(tmp, buffer);
+	tmp = curr->content;
+	curr->content = ft_strjoin(tmp, buffer);
 	ft_strdel(&tmp);
 	ft_strdel(&buffer);
-	index_newline = get_index_newline(current->content);
-	tmp = current->content;
-	*line = ft_strsub(tmp, 0, index_newline);
+	i = get_index_newline(curr->content);
+	tmp = curr->content;
+	*line = ft_strsub(tmp, 0, i);
 	if (ft_strlen(tmp) != ft_strlen(*line))
-		current->content = ft_strsub(tmp, index_newline + 1, ft_strlen(tmp) - index_newline - 1);
+		curr->content = ft_strsub(tmp, i + 1, ft_strlen(tmp) - i - 1);
 	ft_strdel(&tmp);
 	return (1);
 }
